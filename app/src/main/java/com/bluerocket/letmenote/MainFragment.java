@@ -19,6 +19,7 @@ import android.widget.Toast;
  */
 
 public class MainFragment extends Fragment {
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
@@ -30,6 +31,7 @@ public class MainFragment extends Fragment {
         });
         ViewPager pager = (ViewPager) view.findViewById(R.id.pager);
         pager.setAdapter(new MainFragment.PagerAdapter());
+        getActivity().setTitle("Home Frag");
         return view;
     }
 

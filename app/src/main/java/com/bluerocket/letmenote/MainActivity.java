@@ -1,12 +1,15 @@
 package com.bluerocket.letmenote;
 
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.gordonwong.materialsheetfab.MaterialSheetFab;
@@ -20,13 +23,15 @@ import nl.psdcompany.duonavigationdrawer.views.DuoMenuView;
 import nl.psdcompany.duonavigationdrawer.widgets.DuoDrawerToggle;
 
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, DuoMenuView.OnMenuClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, DuoMenuView.OnMenuClickListener,BlankFragment.OnFragmentInteractionListener {
     private MenuAdapter mMenuAdapter;
     private ViewHolder mViewHolder;
     public Fab fab;
 
     private MaterialSheetFab materialSheetFab;
     private int statusBarColor;
+    private TextView tv1;
+    DuoDrawerToggle duoDrawerToggle;
 
     private ArrayList<String> mTitles = new ArrayList<>();
 
@@ -52,10 +57,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         goToFragment(new MainFragment(), false);
         mMenuAdapter.setViewSelected(0, true);
 
+        tv1=findViewById(R.id.fab_sheet_item_recording);
+
 
         setupFab();
         materialSheetFab.showFab();
         setTitle(mTitles.get(0));
+
+        getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+            @Override
+            public void onBackStackChanged() {
+                if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                } else {
+                    getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                    duoDrawerToggle.setDrawerIndicatorEnabled(true);
+                }
+            }
+        });
     }
 
     private void handleToolbar() {
@@ -63,14 +82,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void handleDrawer() {
-        DuoDrawerToggle duoDrawerToggle = new DuoDrawerToggle(this,
+         duoDrawerToggle = new DuoDrawerToggle(this,
                 mViewHolder.mDuoDrawerLayout,
                 mViewHolder.mToolbar,
                 R.string.navigation_drawer_open,
                 R.string.navigation_drawer_close);
 
         mViewHolder.mDuoDrawerLayout.setDrawerListener(duoDrawerToggle);
+
+        duoDrawerToggle.setToolbarNavigationClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
         duoDrawerToggle.syncState();
+
+
 
     }
 
@@ -120,6 +148,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mViewHolder.mDuoDrawerLayout.closeDrawer();
     }
 
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
+    }
+
     private class ViewHolder {
         private DuoDrawerLayout mDuoDrawerLayout;
         private DuoMenuView mDuoMenuView;
@@ -145,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // Create material sheet FAB
         materialSheetFab = new MaterialSheetFab<>(fab, sheetView, overlay, sheetColor, fabColor);
 
-        findViewById(R.id.fab_sheet_item_recording).setOnClickListener(this);
+        tv1.setOnClickListener(this);
         findViewById(R.id.fab_sheet_item_reminder).setOnClickListener(this);
         findViewById(R.id.fab_sheet_item_photo).setOnClickListener(this);
         findViewById(R.id.fab_sheet_item_note).setOnClickListener(this);
@@ -169,6 +202,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // Set material sheet item click listeners
 
+
+
     }
 
     private int getStatusBarColor() {
@@ -186,7 +221,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
+
+        switch (tv1.getId()){
+            case R.id.fab_sheet_item_recording:
+               duoDrawerToggle.setDrawerIndicatorEnabled(false);
+                getSupportFragmentManager().beginTransaction().replace(R.id.container, new BlankFragment()).addToBackStack("tag").commitAllowingStateLoss();
+                break;
+
+
+        }
     //    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new AddNoteFragment()).commitAllowingStateLoss();
         materialSheetFab.hideSheet();
     }
+    @Override
+    public void onBackPressed() {
+        if (getFragmentManager().getBackStackEntryCount() > 0) {
+            getFragmentManager().popBackStack();
+        } else {
+            super.onBackPressed();
+        }
+    }
+    public void showFloatingActionButton() {
+        fab.show();
+    };
+
+    public void hideFloatingActionButton() {
+        fab.hide();
+    };
 }
