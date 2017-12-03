@@ -25,7 +25,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ViewHolder mViewHolder;
     public Fab fab;
 
-    int lastSelectedPosition = 0;
     private MaterialSheetFab materialSheetFab;
     private int statusBarColor;
 
